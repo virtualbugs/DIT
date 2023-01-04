@@ -21,6 +21,9 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        dialognewtask.cpp
+        dialognewtask.h
+        dialognewtask.ui
         ${TS_FILES}
 )
 

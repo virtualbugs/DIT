@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "dialognewtask.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -14,6 +15,11 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    DialogNewTask dialog_new_task;
+
+private slots:
+    void on_btn_add_task_clicked();
+    void on_btn_remove_task_clicked();
 
 private:
     Ui::MainWindow *ui;
