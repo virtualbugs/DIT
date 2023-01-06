@@ -11,8 +11,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql LinguistTools)
 
 set(TS_FILES DIT_tr_TR.ts)
 
@@ -24,6 +24,10 @@ set(PROJECT_SOURCES
         dialognewtask.cpp
         dialognewtask.h
         dialognewtask.ui
+        todotablemodel.h
+        todotablemodel.cpp
+        donetablemodel.h
+        donetablemodel.cpp
         ${TS_FILES}
 )
 
@@ -54,7 +58,9 @@ else()
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
-target_link_libraries(DIT PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(DIT PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Sql)
 
 set_target_properties(DIT PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
