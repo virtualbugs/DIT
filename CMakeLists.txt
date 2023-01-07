@@ -14,7 +14,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql LinguistTools)
 
-set(TS_FILES DIT_tr_TR.ts)
 
 set(PROJECT_SOURCES
         main.cpp
@@ -28,7 +27,6 @@ set(PROJECT_SOURCES
         todotablemodel.cpp
         donetablemodel.h
         donetablemodel.cpp
-        ${TS_FILES}
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

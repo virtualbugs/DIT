@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    setWindowTitle("Do It Today");
+    setWindowTitle(tr("Do It Today"));
     database = QSqlDatabase::addDatabase("QSQLITE");
     QString dbFilePath = "~/" + QStandardPaths::displayName(QStandardPaths::DocumentsLocation) + "/DIT.sqlite3";
     qDebug() << "-> " << dbFilePath;

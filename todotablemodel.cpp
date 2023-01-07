@@ -19,7 +19,7 @@ int ToDoTableModel::columnCount(const QModelIndex &parent) const
 QVariant ToDoTableModel::data(const QModelIndex &index, int role) const
 {
     if(!index.isValid() || tasks==nullptr) {
-        return QModelIndex();
+        return QVariant();
     }
 
     if(role == Qt::DisplayRole) {
@@ -35,7 +35,7 @@ QVariant ToDoTableModel::data(const QModelIndex &index, int role) const
         }
     }
 
-    return QModelIndex();
+    return QVariant();
 }
 
 
