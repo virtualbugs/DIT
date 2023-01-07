@@ -19,6 +19,13 @@ public:
     QString getStartDate();
     QString getEndDate();
     QString getTag();
+    void clearTextLines();
+
+public slots:
+    void onAccepted();
+
+signals:
+    void dialogAccepted();
 
 private:
     Ui::DialogNewTask *ui;

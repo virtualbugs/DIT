@@ -24,14 +24,11 @@ MainWindow::MainWindow(QWidget *parent)
     fetchDataToDo();
     fetchDataDone();
 
-  //  todo_table_model = new ToDoTableModel();
-    //done_table_model = new DoneTableModel();
-    //ui->tableView_Done->setModel(done_table_model);
     ui->tableView_ToDo->setModel(todo_table_model);
 
-    connect(this, &MainWindow::todoDataFetched, todo_table_model, &ToDoTableModel::onDataUpdated);
-    //connect(this, &MainWindow::doneDataFetched, done_table_model, &DoneTableModel::onDataUpdated);
-
+    connect(this, &MainWindow::todoDataAdded, todo_table_model, &ToDoTableModel::onDataAdded);
+    connect(this, &MainWindow::todoDataRemoved, todo_table_model, &ToDoTableModel::onDataRemoved);
+    connect(&dialog_new_task, &DialogNewTask::dialogAccepted, this, &MainWindow::on_task_add_accepted);
 }
 
 MainWindow::~MainWindow()
@@ -107,16 +104,37 @@ void MainWindow::fetchDataDone()
         done_data.push_back(data_items);
     }
 
-    //emit doneDataFetched(&done_data);
 }
 
 
 void MainWindow::on_btn_add_task_clicked()
 {
-    DataItems item;
-    // Get user inputs
-    //dialog_new_task.show();
+    dialog_new_task.clearTextLines();
     dialog_new_task.exec();
+}
+
+
+void MainWindow::on_btn_remove_task_clicked()
+{
+    // get clicked index from Table View
+    int selectedIndex = ui->tableView_ToDo->currentIndex().row();
+    QString selectedTask = todo_data.at(selectedIndex).task;
+
+    // remove data from DB
+    query->prepare("DELETE FROM " + QString("ToDo") + " "
+                  "WHERE Task = :task_name; ");
+    query->bindValue(":task_name", selectedTask);
+    int i = query->exec();
+    i ? qDebug() << "db remove success" : qDebug() << "fail : " << query->lastError();
+
+
+    emit todoDataRemoved(selectedIndex);
+}
+
+void MainWindow::on_task_add_accepted()
+{
+    // Get user inputs
+    DataItems item;
     item.task = dialog_new_task.getTask();
     item.tag = dialog_new_task.getTag();
     item.startDate = dialog_new_task.getStartDate();
@@ -136,16 +154,7 @@ void MainWindow::on_btn_add_task_clicked()
     int i = query->exec();
     i ? qDebug() << "db write success" : qDebug() << "fail : " << query->lastError();
 
-    emit todoDataFetched(item);
-}
-
-
-void MainWindow::on_btn_remove_task_clicked()
-{
-    // get clicked index from Table View
-
-    // remove data from DB
-
-    fetchDataToDo();
+    todo_data.push_back(item);
+    emit todoDataAdded(item);
 }
 

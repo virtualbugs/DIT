@@ -39,9 +39,10 @@ public:
     void fetchDataDone();
     void firstTimeDBInit();
 
-private slots:
+public slots:
     void on_btn_add_task_clicked();
     void on_btn_remove_task_clicked();
+    void on_task_add_accepted();
 
 private:
     Ui::MainWindow *ui;
@@ -53,7 +54,7 @@ private:
     DoneTableModel* done_table_model;
 
 signals:
-    void todoDataFetched(DataItems);
-    void doneDataFetched(DataItems);
+    void todoDataAdded(DataItems);
+    void todoDataRemoved(int);
 };
 #endif // MAINWINDOW_H

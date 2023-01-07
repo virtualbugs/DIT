@@ -12,6 +12,8 @@ DialogNewTask::DialogNewTask(QWidget *parent) :
     QString formattedTime = today.toString("dd.MM.yyyy");
     ui->dateEdit_start->setDateTime(today);
     ui->dateEdit_end->setDateTime(today);
+
+    connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(onAccepted()));
 }
 
 DialogNewTask::~DialogNewTask()
@@ -37,4 +39,15 @@ QString DialogNewTask::getEndDate()
 QString DialogNewTask::getTag()
 {
     return ui->lineEdit_tag->text();
+}
+
+void DialogNewTask::clearTextLines()
+{
+    ui->lineEdit_task->clear();
+    ui->lineEdit_tag->clear();
+}
+
+void DialogNewTask::onAccepted()
+{
+    emit dialogAccepted();
 }

@@ -60,12 +60,13 @@ QVariant ToDoTableModel::headerData(int section, Qt::Orientation orientation, in
     return QVariant();
 }
 
-void ToDoTableModel::onDataUpdated(DataItems data_items)
+void ToDoTableModel::onDataAdded(DataItems data_items)
 {
     qDebug() << "ToDoTableModel message : data updated";
-    int rCount = rowCount(QModelIndex());
-    insertRows(rCount,1,QModelIndex());
-    tasks->push_back(data_items);
+    int rCount = 0;
+    qDebug() << "rCount : " << rCount;
+    insertRows(rCount, 1, QModelIndex());
+    tasks->insert(tasks->begin()+rCount, data_items);
 
     QModelIndex index_task = index(rCount, 0, QModelIndex());
     setData(index_task, data_items.task, Qt::DisplayRole);
@@ -77,16 +78,30 @@ void ToDoTableModel::onDataUpdated(DataItems data_items)
     setData(index_enddate, data_items.endDate, Qt::DisplayRole);
 }
 
+void ToDoTableModel::onDataRemoved(int selectedRow)
+{
+    removeRows(selectedRow, 1, QModelIndex());
+    QList<DataItems>::iterator it = tasks->begin() + selectedRow;
+    tasks->erase(it);
+}
+
 
 bool ToDoTableModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-    beginInsertRows(parent, row, row);
-    //..
+    beginInsertRows(parent, row, row+count-1);
+
     endInsertRows();
 
     return true;
 }
 
+bool ToDoTableModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    beginRemoveRows(parent, row, row);
+    //..
+    endRemoveRows();
+    return true;
+}
 
 bool ToDoTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
