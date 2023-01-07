@@ -17,16 +17,16 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql LinguistTools
 
 set(PROJECT_SOURCES
         main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
-        dialognewtask.cpp
-        dialognewtask.h
-        dialognewtask.ui
-        todotablemodel.h
-        todotablemodel.cpp
-        donetablemodel.h
-        donetablemodel.cpp
+        src/mainwindow.cpp
+        src/mainwindow.h
+        src/mainwindow.ui
+        src/dialognewtask.cpp
+        src/dialognewtask.h
+        src/dialognewtask.ui
+        src/todotablemodel.h
+        src/todotablemodel.cpp
+        src/donetablemodel.h
+        src/donetablemodel.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
