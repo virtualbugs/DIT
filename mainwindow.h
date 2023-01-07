@@ -8,6 +8,8 @@
 #include <QSqlError>
 #include <QFileInfo>
 #include <QStandardPaths>
+#include <QMenu>
+#include <QAction>
 #include "todotablemodel.h"
 #include "donetablemodel.h"
 
@@ -41,8 +43,10 @@ public:
 
 public slots:
     void on_btn_add_task_clicked();
-    void on_btn_remove_task_clicked();
+    void on_btn_remove_task_clicked(int selectedIndex=-1);
     void on_task_add_accepted();
+    void toDoTableMenuRequested(QPoint);
+    void moveItemToDone(bool);
 
 private:
     Ui::MainWindow *ui;
@@ -53,8 +57,13 @@ private:
     ToDoTableModel* todo_table_model;
     DoneTableModel* done_table_model;
 
+    QMenu *menu;
+    QAction *action_done;
+    int selectedRow_toMarkAsDone;
+
 signals:
-    void todoDataAdded(DataItems);
-    void todoDataRemoved(int);
+    void todoTableDataAdded(DataItems);
+    void todoTableDataRemoved(int);
+    void doneTableDataAdded(DataItems);
 };
 #endif // MAINWINDOW_H

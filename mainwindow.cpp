@@ -6,7 +6,15 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
     setWindowTitle(tr("Do It Today"));
+
+    menu = new QMenu(this);
+    action_done = new QAction("Done", this);
+    menu->addAction(action_done);
+    connect(action_done, SIGNAL(triggered(bool)),
+            this, SLOT(moveItemToDone(bool)));
+
     database = QSqlDatabase::addDatabase("QSQLITE");
     QString dbFilePath = "~/" + QStandardPaths::displayName(QStandardPaths::DocumentsLocation) + "/DIT.sqlite3";
     qDebug() << "-> " << dbFilePath;
@@ -24,11 +32,17 @@ MainWindow::MainWindow(QWidget *parent)
     fetchDataToDo();
     fetchDataDone();
 
+    ui->tableView_ToDo->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->tableView_ToDo->setModel(todo_table_model);
+    ui->tableView_Done->setModel(done_table_model);
 
-    connect(this, &MainWindow::todoDataAdded, todo_table_model, &ToDoTableModel::onDataAdded);
-    connect(this, &MainWindow::todoDataRemoved, todo_table_model, &ToDoTableModel::onDataRemoved);
+
+    connect(this, &MainWindow::todoTableDataAdded, todo_table_model, &ToDoTableModel::onDataAdded);
+    connect(this, &MainWindow::todoTableDataRemoved, todo_table_model, &ToDoTableModel::onDataRemoved);
+    connect(this, &MainWindow::doneTableDataAdded, done_table_model, &DoneTableModel::onDataAdded);
     connect(&dialog_new_task, &DialogNewTask::dialogAccepted, this, &MainWindow::on_task_add_accepted);
+    connect(ui->tableView_ToDo, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(toDoTableMenuRequested(QPoint)));
 }
 
 MainWindow::~MainWindow()
@@ -64,6 +78,33 @@ void MainWindow::firstTimeDBInit()
     i = query->exec();
     //i ? qDebug() << "success" : qDebug() << "fail : " << query->lastError();
 
+}
+
+void MainWindow::moveItemToDone(bool)
+{
+    DataItems item = todo_data.at(selectedRow_toMarkAsDone);
+
+    // Insert data to DB
+    query->prepare("INSERT INTO " + QString("Done") +
+                  "(Task,Tag,StartDate,EndDate) \
+                  VALUES(:task_name,:tag_name,:start_date,"
+                        ":end_date"
+                  "); ");
+    query->bindValue(":task_name", item.task);
+    query->bindValue(":tag_name", item.tag);
+    query->bindValue(":start_date", item.startDate);
+    query->bindValue(":end_date", item.endDate);
+
+    int i = query->exec();
+    i ? qDebug() << "db write success" : qDebug() << "fail : " << query->lastError();
+
+    // add item to Done data structure
+    done_data.push_back(item);
+    emit doneTableDataAdded(item);
+
+
+    // remove item from ToDo Table
+    on_btn_remove_task_clicked(selectedRow_toMarkAsDone);
 }
 
 void MainWindow::fetchDataToDo()
@@ -104,6 +145,7 @@ void MainWindow::fetchDataDone()
         done_data.push_back(data_items);
     }
 
+    done_table_model = new DoneTableModel(&done_data);
 }
 
 
@@ -114,10 +156,11 @@ void MainWindow::on_btn_add_task_clicked()
 }
 
 
-void MainWindow::on_btn_remove_task_clicked()
+void MainWindow::on_btn_remove_task_clicked(int selectedIndex)
 {
     // get clicked index from Table View
-    int selectedIndex = ui->tableView_ToDo->currentIndex().row();
+    if(selectedIndex == -1)
+        selectedIndex = ui->tableView_ToDo->currentIndex().row();
     QString selectedTask = todo_data.at(selectedIndex).task;
 
     // remove data from DB
@@ -127,8 +170,10 @@ void MainWindow::on_btn_remove_task_clicked()
     int i = query->exec();
     i ? qDebug() << "db remove success" : qDebug() << "fail : " << query->lastError();
 
+    // remove item from ToDo data structure
+    todo_data.erase(todo_data.begin()+selectedIndex);
 
-    emit todoDataRemoved(selectedIndex);
+    emit todoTableDataRemoved(selectedIndex);
 }
 
 void MainWindow::on_task_add_accepted()
@@ -155,6 +200,14 @@ void MainWindow::on_task_add_accepted()
     i ? qDebug() << "db write success" : qDebug() << "fail : " << query->lastError();
 
     todo_data.push_back(item);
-    emit todoDataAdded(item);
+    emit todoTableDataAdded(item);
+}
+
+void MainWindow::toDoTableMenuRequested(QPoint pos)
+{
+    QModelIndex index = ui->tableView_ToDo->indexAt(pos);
+    selectedRow_toMarkAsDone = index.row();
+    menu->popup(ui->tableView_ToDo->viewport()->mapToGlobal(pos));
+
 }
 
