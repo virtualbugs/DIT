@@ -9,7 +9,7 @@ struct DataItems;
 class ToDoTableModel: public QAbstractTableModel
 {
 public:
-    ToDoTableModel();
+    ToDoTableModel(QList<DataItems>*);
 
 
     // QAbstractItemModel interface
@@ -20,7 +20,7 @@ public:
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
 public slots:
-    void onDataUpdated(QList<DataItems>*);
+    void onDataUpdated(DataItems);
 
 private:
     QList<DataItems>* tasks;

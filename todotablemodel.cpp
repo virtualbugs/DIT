@@ -1,13 +1,14 @@
 #include "todotablemodel.h"
 
-ToDoTableModel::ToDoTableModel()
+ToDoTableModel::ToDoTableModel(QList<DataItems>* task_list)
+    :tasks(task_list)
 {
-    tasks = nullptr;
+
 }
 
 int ToDoTableModel::rowCount(const QModelIndex &parent) const
 {
-    return 1;
+    return tasks->count();
 }
 
 int ToDoTableModel::columnCount(const QModelIndex &parent) const
@@ -59,18 +60,28 @@ QVariant ToDoTableModel::headerData(int section, Qt::Orientation orientation, in
     return QVariant();
 }
 
-void ToDoTableModel::onDataUpdated(QList<DataItems> *data_items)
+void ToDoTableModel::onDataUpdated(DataItems data_items)
 {
     qDebug() << "ToDoTableModel message : data updated";
-    tasks = data_items;
-    insertRows(0,1,QModelIndex());
+    int rCount = rowCount(QModelIndex());
+    insertRows(rCount,1,QModelIndex());
+    tasks->push_back(data_items);
+
+    QModelIndex index_task = index(rCount, 0, QModelIndex());
+    setData(index_task, data_items.task, Qt::DisplayRole);
+    QModelIndex index_tag = index(rCount, 1, QModelIndex());
+    setData(index_tag, data_items.tag, Qt::DisplayRole);
+    QModelIndex index_startdate = index(rCount, 2, QModelIndex());
+    setData(index_startdate, data_items.startDate, Qt::DisplayRole);
+    QModelIndex index_enddate = index(rCount, 3, QModelIndex());
+    setData(index_enddate, data_items.endDate, Qt::DisplayRole);
 }
 
 
 bool ToDoTableModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-    beginInsertRows(parent, rowCount(parent), rowCount(parent)+1);
-    insertRows(rowCount(parent), 1, parent);
+    beginInsertRows(parent, row, row);
+    //..
     endInsertRows();
 
     return true;
@@ -79,4 +90,10 @@ bool ToDoTableModel::insertRows(int row, int count, const QModelIndex &parent)
 
 bool ToDoTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    if (index.isValid() && role == Qt::DisplayRole)
+    {
+        emit dataChanged(index, index);
+        return true;
+    }
+    return false;
 }

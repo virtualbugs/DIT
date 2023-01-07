@@ -53,7 +53,7 @@ private:
     DoneTableModel* done_table_model;
 
 signals:
-    void todoDataFetched(QList<DataItems>*);
-    void doneDataFetched(QList<DataItems>*);
+    void todoDataFetched(DataItems);
+    void doneDataFetched(DataItems);
 };
 #endif // MAINWINDOW_H

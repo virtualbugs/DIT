@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     fetchDataToDo();
     fetchDataDone();
 
-    todo_table_model = new ToDoTableModel();
+  //  todo_table_model = new ToDoTableModel();
     //done_table_model = new DoneTableModel();
     //ui->tableView_Done->setModel(done_table_model);
     ui->tableView_ToDo->setModel(todo_table_model);
@@ -86,8 +86,7 @@ void MainWindow::fetchDataToDo()
         data_items.endDate = query->value(3).toString();
         todo_data.push_back(data_items);
     }
-
-    emit todoDataFetched(&todo_data);
+    todo_table_model = new ToDoTableModel(&todo_data);
 }
 
 void MainWindow::fetchDataDone()
@@ -108,19 +107,20 @@ void MainWindow::fetchDataDone()
         done_data.push_back(data_items);
     }
 
-    emit doneDataFetched(&done_data);
+    //emit doneDataFetched(&done_data);
 }
 
 
 void MainWindow::on_btn_add_task_clicked()
 {
+    DataItems item;
     // Get user inputs
     //dialog_new_task.show();
     dialog_new_task.exec();
-    QString task = dialog_new_task.getTask();
-    QString tag = dialog_new_task.getTag();
-    QString startDate = dialog_new_task.getStartDate();
-    QString endDate = dialog_new_task.getEndDate();
+    item.task = dialog_new_task.getTask();
+    item.tag = dialog_new_task.getTag();
+    item.startDate = dialog_new_task.getStartDate();
+    item.endDate = dialog_new_task.getEndDate();
 
     // Insert data to DB
     query->prepare("INSERT INTO " + QString("ToDo") +
@@ -128,15 +128,15 @@ void MainWindow::on_btn_add_task_clicked()
                   VALUES(:task_name,:tag_name,:start_date,"
                         ":end_date"
                   "); ");
-    query->bindValue(":task_name", task);
-    query->bindValue(":tag_name", tag);
-    query->bindValue(":start_date", startDate);
-    query->bindValue(":end_date", endDate);
+    query->bindValue(":task_name", item.task);
+    query->bindValue(":tag_name", item.tag);
+    query->bindValue(":start_date", item.startDate);
+    query->bindValue(":end_date", item.endDate);
 
     int i = query->exec();
     i ? qDebug() << "db write success" : qDebug() << "fail : " << query->lastError();
 
-    fetchDataToDo();
+    emit todoDataFetched(item);
 }
 
 
