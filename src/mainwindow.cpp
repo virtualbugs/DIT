@@ -43,6 +43,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&dialog_new_task, &DialogNewTask::dialogAccepted, this, &MainWindow::on_task_add_accepted);
     connect(ui->tableView_ToDo, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(toDoTableMenuRequested(QPoint)));
+
+
+    auto* header = ui->tableView_ToDo->horizontalHeader();
+    connect(header, SIGNAL(sectionClicked(int)), this, SLOT(onHeaderClicked(int)));
+
 }
 
 MainWindow::~MainWindow()
@@ -105,6 +110,11 @@ void MainWindow::moveItemToDone(bool)
 
     // remove item from ToDo Table
     on_btn_remove_task_clicked(selectedRow_toMarkAsDone);
+}
+
+void MainWindow::onHeaderClicked(int column)
+{
+    todo_table_model->sort(column, Qt::SortOrder::AscendingOrder);
 }
 
 void MainWindow::fetchDataToDo()

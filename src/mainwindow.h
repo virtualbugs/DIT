@@ -47,6 +47,7 @@ public slots:
     void on_task_add_accepted();
     void toDoTableMenuRequested(QPoint);
     void moveItemToDone(bool);
+    void onHeaderClicked(int);
 
 private:
     Ui::MainWindow *ui;

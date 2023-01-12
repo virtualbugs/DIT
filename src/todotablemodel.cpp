@@ -112,3 +112,33 @@ bool ToDoTableModel::setData(const QModelIndex &index, const QVariant &value, in
     }
     return false;
 }
+
+
+void ToDoTableModel::sort(int column, Qt::SortOrder order)
+{
+    for(int i=0; i<rowCount()-1; i++) {
+        for(int j=i+1; j<rowCount(); j++) {
+
+            QModelIndex index1 = index(i,column,QModelIndex());
+            QModelIndex index2 = index(j,column,QModelIndex());
+            QString val1 = index1.data(Qt::DisplayRole).toString();
+            QString val2 = index2.data(Qt::DisplayRole).toString();
+
+            for(int k=0; k<val1.size() && k<val2.size() ; k++) {
+                if(val1[k].toLatin1() > val2[k].toLatin1())
+                {
+                    DataItems temp = (*tasks)[i];
+                    (*tasks)[i] = (*tasks)[j];
+                    (*tasks)[j] = temp;
+
+                    setData(index1, val2, Qt::DisplayRole);
+                    setData(index2, val1, Qt::DisplayRole);
+                    break;
+                }
+                else if(val1[k] == val2[k]) {
+                    continue;
+                }
+            }
+        }
+    }
+}
